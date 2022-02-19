@@ -17,15 +17,37 @@ def printBoard(board):
                                                        a[6],a[7],a[8]))
 printBoard(board)
 class Squares:
-    def __init__(self,square,x,y):
+    def __init__(self,square,row,col,block):
         self.value = square
-        self.position = (x,y)
+        self.row = row
+        self.col = col
+        self.block = block
 
 squareObjects = []
+block = int()
 for row in board:
-    for square in row:
-        squareObjects.append(Squares(square,board.index(row),row.index(square)))
-        # for square in tri:
-        #     squareObjects.append(Squares(row,square))
-for squares in squareObjects:
-    print(squares.value,squares.position)
+    for i,square in enumerate(row):
+        if board.index(row) <= 2:
+            if i <= 2:
+                block = 0
+            elif i > 2 and i <= 5:
+                block = 1
+            else:
+                block = 2
+        elif board.index(row) > 2 and board.index(row) <= 5:
+            if i <= 2:
+                block = 3
+            elif i > 2 and i <= 5:
+                block = 4
+            else:
+                block = 5
+        else:
+            if i <= 2:
+                block = 6
+            elif i > 2 and i <= 5:
+                block = 7
+            else:
+                block = 8
+        squareObjects.append(Squares(square,board.index(row),i,block))
+for a in squareObjects:
+    print(a.value,a.row,a.col,a.block)
