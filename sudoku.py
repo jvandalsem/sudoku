@@ -23,31 +23,39 @@ class Squares:
         self.col = col
         self.block = block
 
-squareObjects = []
-block = int()
-for row in board:
-    for i,square in enumerate(row):
-        if board.index(row) <= 2:
-            if i <= 2:
-                block = 0
-            elif i > 2 and i <= 5:
-                block = 1
+boardDict = {'rows':{},'cols':{},'blocks':{}}
+def populateBoardDict(board):
+    for i,row in enumerate(board):
+        boardDict['rows'][i] = [r for r in row]
+        boardDict['blocks'][i] = []
+    for i,col in enumerate(list(zip(*board))):
+        boardDict['cols'][i] = [c for c in col]
+        
+def instantiateSquares(board):
+    squareObjects = []
+    block = int()
+    for row in board:
+        for i,square in enumerate(row):
+            if board.index(row) <= 2:
+                if i <= 2:
+                    block = 0
+                elif i > 2 and i <= 5:
+                    block = 1
+                else:
+                    block = 2
+            elif board.index(row) > 2 and board.index(row) <= 5:
+                if i <= 2:
+                    block = 3
+                elif i > 2 and i <= 5:
+                    block = 4
+                else:
+                    block = 5
             else:
-                block = 2
-        elif board.index(row) > 2 and board.index(row) <= 5:
-            if i <= 2:
-                block = 3
-            elif i > 2 and i <= 5:
-                block = 4
-            else:
-                block = 5
-        else:
-            if i <= 2:
-                block = 6
-            elif i > 2 and i <= 5:
-                block = 7
-            else:
-                block = 8
-        squareObjects.append(Squares(square,board.index(row),i,block))
-for a in squareObjects:
-    print(a.value,a.row,a.col,a.block)
+                if i <= 2:
+                    block = 6
+                elif i > 2 and i <= 5:
+                    block = 7
+                else:
+                    block = 8
+            boardDict['blocks'][block].append(square)
+            squareObjects.append(Squares(square,board.index(row),i,block))
