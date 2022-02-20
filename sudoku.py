@@ -15,7 +15,6 @@ def printBoard(board):
         print('[{}|{}|{}][{}|{}|{}][{}|{}|{}|]'.format(a[0],a[1],a[2],
                                                        a[3],a[4],a[5],
                                                        a[6],a[7],a[8]))
-printBoard(board)
 class Squares:
     def __init__(self,square,row,col,block):
         self.value = square
@@ -23,14 +22,15 @@ class Squares:
         self.col = col
         self.block = block
 
-boardDict = {'rows':{},'cols':{},'blocks':{}}
 def populateBoardDict(board):
+    boardDict = {'rows':{},'cols':{},'blocks':{}}
     for i,row in enumerate(board):
         boardDict['rows'][i] = [r for r in row]
         boardDict['blocks'][i] = []
     for i,col in enumerate(list(zip(*board))):
         boardDict['cols'][i] = [c for c in col]
-        
+    return boardDict
+boardAttr = populateBoardDict(board)
 def instantiateSquares(board):
     squareObjects = []
     block = int()
@@ -57,5 +57,17 @@ def instantiateSquares(board):
                     block = 7
                 else:
                     block = 8
-            boardDict['blocks'][block].append(square)
+            boardAttr['blocks'][block].append(square)
             squareObjects.append(Squares(square,board.index(row),i,block))
+    return squareObjects
+squareAttr = instantiateSquares(board)
+possibilityMatrix = {}
+for square in squareAttr:
+    for a in range(1,10):
+        if a != square.value:
+            if a not in boardAttr['rows'][square.row] and a not in boardAttr['cols'][square.col] and a not in boardAttr['blocks'][square.block]:
+                if (square.row,square.col,square.block) not in possibilityMatrix:
+                    possibilityMatrix[(square.row,square.col,square.block)] = []
+                possibilityMatrix[(square.row,square.col,square.block)].append(a)
+
+print(possibilityMatrix)
