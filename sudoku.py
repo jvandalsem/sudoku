@@ -61,13 +61,27 @@ def instantiateSquares(board):
             squareObjects.append(Squares(square,board.index(row),i,block))
     return squareObjects
 squareAttr = instantiateSquares(board)
-possibilityMatrix = {}
-for square in squareAttr:
-    for a in range(1,10):
-        if a != square.value:
-            if a not in boardAttr['rows'][square.row] and a not in boardAttr['cols'][square.col] and a not in boardAttr['blocks'][square.block]:
-                if (square.row,square.col,square.block) not in possibilityMatrix:
-                    possibilityMatrix[(square.row,square.col,square.block)] = []
-                possibilityMatrix[(square.row,square.col,square.block)].append(a)
 
-print(possibilityMatrix)
+def solve(board,squares,boardData):
+    possibilityMatrix = {}
+    for square in squares:
+        for a in range(1,10):
+            if square.value == ' ':
+                if a not in boardData['rows'][square.row] and a not in boardData['cols'][square.col] and a not in boardData['blocks'][square.block]:
+                    if (square.row,square.col,square.block) not in possibilityMatrix:
+                        possibilityMatrix[(square.row,square.col,square.block)] = []
+                    possibilityMatrix[(square.row,square.col,square.block)].append(a)
+    for coord in possibilityMatrix:
+        if len(possibilityMatrix[coord])==1:
+            board[coord[0]][coord[1]] = possibilityMatrix[coord][0]
+
+    boardDataRec = populateBoardDict(board)
+    squareDataRec = instantiateSquares(board)
+    print('------------------------')
+    printBoard(board)
+    print(possibilityMatrix)
+    solve(board,squareDataRec,boardDataRec)
+
+        # if all(' ' not in row for row in board):
+        #     solved = True
+solve(board,squareAttr,boardAttr)
