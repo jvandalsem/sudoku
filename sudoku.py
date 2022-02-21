@@ -1,5 +1,4 @@
 #Soduko Solver
-import random
 board = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', 2, 8],
          [' ', 6, ' ', ' ', ' ', ' ', ' ', ' ', 7],
          [' ', ' ', ' ', 4, ' ', 1, ' ', ' ', ' '],
@@ -59,7 +58,7 @@ def getData(board):
     return squareObjects, boardDict
 
 def solve(board,squares,boardData):
-    possibilityArray = {}
+    possibilityArray = dict()
     inverseBlock = dict()
     for square in squares:
         for a in range(1,10):
@@ -83,10 +82,10 @@ def solve(board,squares,boardData):
         if len(inverseBlock[combo]) == 1:
             board[inverseBlock[combo][0][0]][inverseBlock[combo][0][1]] = int(combo[2])
 
-    squareDataRec,boardDataRec = getData(board)
     print('------------------------')
     printBoard(board)
     while any(' ' in row for row in board):
+        squareDataRec,boardDataRec = getData(board)
         solve(board,squareDataRec,boardDataRec)
 
 squareAttr,boardAttr = getData(board)
