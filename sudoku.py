@@ -1,14 +1,14 @@
 #Soduko Solver
 import random
-board = [[' ',' ',' ',7,9,' ',' ',5,' '],
-         [3,5,2,' ',' ',8,' ',4,' '],
-         [' ',' ',' ',' ',' ',' ',' ',8,' '],
-         [' ',1,' ',' ',7,' ',' ',' ',4],
-         [6,' ',' ',3,' ',1,' ',' ',8],
-         [9,' ',' ',' ',8,' ',' ',1,' '],
-         [' ',2,' ',' ',' ',' ',' ',' ',' '],
-         [' ',4,' ',5,' ',' ',8,9,1],
-         [' ',8,' ',' ',3,7,' ',' ',' ']]
+board = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', 2, 8],
+         [' ', 6, ' ', ' ', ' ', ' ', ' ', ' ', 7],
+         [' ', ' ', ' ', 4, ' ', 1, ' ', ' ', ' '],
+         [5, ' ', ' ', 9, 7, ' ', 3, ' ', ' '],
+         [2, ' ', 4, ' ', ' ', 8, ' ', ' ', ' '],
+         [3, ' ', ' ', ' ', ' ', 4, 5, ' ', ' '],
+         [1, 3, ' ', ' ', 9, ' ', ' ', ' ', ' '],
+         [' ', 5, 7, ' ', ' ', ' ', ' ', 9, ' '],
+         [' ', ' ', 8, 3, 1, 7, ' ', ' ', ' ']]
 
 def printBoard(board):
     for a in board:
@@ -22,18 +22,15 @@ class Squares:
         self.col = col
         self.block = block
 
-def populateBoardDict(board):
+def getData(board):
+    squareObjects = []
+    block = int()
     boardDict = {'rows':{},'cols':{},'blocks':{}}
     for i,row in enumerate(board):
         boardDict['rows'][i] = [r for r in row]
         boardDict['blocks'][i] = []
     for i,col in enumerate(list(zip(*board))):
         boardDict['cols'][i] = [c for c in col]
-    return boardDict
-boardAttr = populateBoardDict(board)
-def instantiateSquares(board):
-    squareObjects = []
-    block = int()
     for row in board:
         for i,square in enumerate(row):
             if board.index(row) <= 2:
@@ -57,31 +54,40 @@ def instantiateSquares(board):
                     block = 7
                 else:
                     block = 8
-            boardAttr['blocks'][block].append(square)
+            boardDict['blocks'][block].append(square)
             squareObjects.append(Squares(square,board.index(row),i,block))
-    return squareObjects
-squareAttr = instantiateSquares(board)
+    return squareObjects, boardDict
 
 def solve(board,squares,boardData):
-    possibilityMatrix = {}
+    possibilityArray = {}
+    inverseBlock = dict()
     for square in squares:
         for a in range(1,10):
             if square.value == ' ':
-                if a not in boardData['rows'][square.row] and a not in boardData['cols'][square.col] and a not in boardData['blocks'][square.block]:
-                    if (square.row,square.col,square.block) not in possibilityMatrix:
-                        possibilityMatrix[(square.row,square.col,square.block)] = []
-                    possibilityMatrix[(square.row,square.col,square.block)].append(a)
-    for coord in possibilityMatrix:
-        if len(possibilityMatrix[coord])==1:
-            board[coord[0]][coord[1]] = possibilityMatrix[coord][0]
+                if a not in boardData['rows'][square.row] \
+                and a not in boardData['cols'][square.col] \
+                and a not in boardData['blocks'][square.block]:
+                    if (square.row,square.col,square.block) not in possibilityArray:
+                        possibilityArray[(square.row,square.col,square.block)] = []
+                    possibilityArray[(square.row,square.col,square.block)].append(a)
+    for coord,vals in possibilityArray.items():
+        for val in vals:
+            if (str(coord[2])+','+str(val)) not in inverseBlock:
+                inverseBlock[(str(coord[2])+','+str(val))] = []
+            inverseBlock[(str(coord[2])+','+str(val))].append(coord)
 
-    boardDataRec = populateBoardDict(board)
-    squareDataRec = instantiateSquares(board)
+    for coord in possibilityArray:
+        if len(possibilityArray[coord])==1:
+            board[coord[0]][coord[1]] = possibilityArray[coord][0]
+    for combo in inverseBlock:
+        if len(inverseBlock[combo]) == 1:
+            board[inverseBlock[combo][0][0]][inverseBlock[combo][0][1]] = int(combo[2])
+
+    squareDataRec,boardDataRec = getData(board)
     print('------------------------')
     printBoard(board)
-    print(possibilityMatrix)
-    solve(board,squareDataRec,boardDataRec)
+    while any(' ' in row for row in board):
+        solve(board,squareDataRec,boardDataRec)
 
-        # if all(' ' not in row for row in board):
-        #     solved = True
+squareAttr,boardAttr = getData(board)
 solve(board,squareAttr,boardAttr)
