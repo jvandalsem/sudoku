@@ -1,0 +1,105 @@
+from wordfreq import *
+from wordList import wordS, letterFreqs
+import colorama
+from colorama import init, Fore, Back, Style
+init()
+
+class Game:
+    def __init__(self):
+        guessStruct = {'locks': {},'included': [],'discluded': []}
+        self.guessData = guessStruct
+        
+    def addGuess(self,guess,data):
+        for a,b in enumerate(zip(guess.lower(),data)):
+            if b[1] == 'y':
+                self.guessData['included'].append((b[0],a))
+            elif b[1] == 'b':
+                self.guessData['discluded'].append(b[0])
+            elif b[1] == 'g':
+                self.guessData['locks'][b[0]] = a
+        self.guessDict = self.guessData
+                
+    def createGuessList(self,words):
+        lockList = []
+        for word in words:
+            if len(self.guessDict['locks'])==0:
+                break
+            elif all([list(self.guessDict['locks'].items())[a][0]==word[list(self.guessDict['locks'].items())[a][1]] for a in range(len(self.guessDict['locks']))]):
+                lockList.append(word)
+        newer=[]
+        if len(self.guessDict['locks'])!=0:
+            for word in lockList:
+                if len(self.guessDict['included'])==0:
+                    newer = lockList
+                    break
+                else:
+                    for letter in self.guessDict['included']:
+                        if all(a[0] in word for a in self.guessDict['included']) \
+                        and all([self.guessDict['included'][a][0]!=word[self.guessDict['included'][a][1]] for a in range(len(self.guessDict['included']))])\
+                        and word not in newer:
+                            newer.append(word)
+                                
+        elif len(self.guessDict['locks'])==0:
+            for word in words:
+                if len(self.guessDict['included'])==0:
+                    newer = words
+                    break
+                else:
+                    for letter in self.guessDict['included']:
+                        if letter in list(self.guessDict['locks'].keys()):
+                            continue
+                        else:
+                            if all(a[0] in word for a in self.guessDict['included']) \
+                            and all([self.guessDict['included'][a][0]!=word[self.guessDict['included'][a][1]] for a in range(len(self.guessDict['included']))])\
+                            and word not in newer:
+                                newer.append(word)
+                                
+        final = []
+        for x in newer:
+            if not any(bad in x for bad in set(self.guessDict['discluded'])):
+                final.append(x)
+    
+        self.guesses = final
+        
+    def displayGuesses(self):
+        sortDict = {}
+        print('\n'+Fore.GREEN+'Possible Guesses')
+        print(Style.RESET_ALL)
+        if len(self.guesses)!=0:
+            for a in self.guesses:
+                sortDict[a] = score(a)
+
+            sortedDict = sorted(sortDict.items(),key=lambda x: x[1],reverse=True)[:5]
+            for a in sortedDict:
+                print(a[0],a[1])
+            print('\n')
+        else:
+            print('You suck. Try again')
+
+def score(word):
+    lMatrix = {}
+    for a in word:
+        lMatrix[a] = letterFreqs[a]
+    freqScore = zipf_frequency(word,'en','best')
+    letterScore = sum(lMatrix.values())
+    finalScore = letterScore*freqScore
+    return (finalScore)
+
+def main():
+    print('Enter guesses in the following format:\n')
+    print(Fore.GREEN+'CRANE')
+    print(Fore.GREEN+'DDILD')
+    print(Style.RESET_ALL)
+    g1 = Game()
+    guess = ''
+    while guess != 'n':
+        guess = input('Guess -> ')
+        data = input('Guess results -> ')
+        g1.addGuess(guess,data)
+        g1.createGuessList(wordS)
+        g1.displayGuesses()
+        guess = input('Guess again? (y/n): ')
+    print('\n'+Fore.RED+'Goodbye')
+    print(Style.RESET_ALL)
+
+main()
